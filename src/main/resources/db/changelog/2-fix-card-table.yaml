@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: fix-card-table
+      author: you
+      changes:
+        - modifyDataType:
+            tableName: card
+            columnName: ownerId
+            newDataType: UUID
+        - addNotNullConstraint:
+            tableName: card
+            columnName: number
+        - addNotNullConstraint:
+            tableName: card
+            columnName: ownerId
+        - addNotNullConstraint:
+            tableName: card
+            columnName: expiry_date
+        - addNotNullConstraint:
+            tableName: card
+            columnName: status
+        - addNotNullConstraint:
+            tableName: card
+            columnName: balance

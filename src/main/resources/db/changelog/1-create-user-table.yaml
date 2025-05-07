@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-user-table
+      author: you
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: password
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: cards
+                  type: UUID[]
+              - column:
+                  name: role
+                  type: VARCHAR(50)

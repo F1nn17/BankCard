@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-card-table
+      author: you
+      changes:
+        - createTable:
+            tableName: card
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: number
+                  type: VARCHAR(20)
+              - column:
+                  name: owner
+                  type: VARCHAR(255)
+              - column:
+                  name: expiry_date
+                  type: VARCHAR(10)
+              - column:
+                  name: status
+                  type: VARCHAR(50)
+              - column:
+                  name: balance
+                  type: DECIMAL(19,2)
