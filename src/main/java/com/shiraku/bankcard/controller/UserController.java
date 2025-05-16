@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /** Класс UserController представляет собой контроллер для управления пользователями
@@ -70,7 +71,12 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid UserRequest userRequest) {
         String token = userService.login(userRequest);
-        return ResponseEntity.ok(Map.of("token", token));
+        HashMap<String, String> map = new HashMap<>();
+        map.put("token", token);
+        if (map.get("token") == null) {
+            return new ResponseEntity<>(map, HttpStatus.UNAUTHORIZED);
+        }
+        return ResponseEntity.ok(map);
     }
 
 }

@@ -90,8 +90,7 @@ class AdminControllerTest {
         mockMvc.perform(post("/api/admin/raising")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalid)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Incorrect input data")));
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

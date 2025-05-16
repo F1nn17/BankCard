@@ -8,17 +8,12 @@ import com.shiraku.bankcard.service.UserService;
 import com.shiraku.bankcard.utils.JWTUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -29,11 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
-@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc(addFilters = false)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Import({JWTUtils.class})
-@WithMockUser(username = "user")
 class UserControllerTest {
 
     @Autowired
@@ -117,7 +108,7 @@ class UserControllerTest {
         mockMvc.perform(post("/api/user/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validRequest)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -49,9 +50,9 @@ public class AdminController {
             @ApiResponse(responseCode = "400", description = "Некорректные входные данные"),
     })
     @PostMapping("/raising")
-    public ResponseEntity<?> raising(@RequestBody @Valid RaisingRequest request) {
+    public ResponseEntity<?> raising(@RequestBody @Valid RaisingRequest request) throws Exception {
         if (request.getEmail() == null || request.getPassword() == null || request.getSecretKey() == null) {
-            return new ResponseEntity<>("Incorrect input data", HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("Incorrect input data");
         }
         String secretKey = "_0_1_2_3_4_5_6_7_";
         if(!request.getSecretKey().equals(secretKey)) {

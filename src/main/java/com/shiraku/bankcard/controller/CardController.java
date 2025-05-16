@@ -9,12 +9,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 /** Класс CardController представляет собой контроллер для управления банковскими картами
@@ -24,6 +26,7 @@ import java.util.UUID;
  * getUserCards(), getBalance(),  transferBetweenCards(), blockUserCard(), createCard(), blockCard(), activateCard(),
  * deleteCard(), getAllCards()
  * */
+@Slf4j
 @Validated
 @RestController
 @RequestMapping("/api/card")
@@ -56,9 +59,9 @@ public class CardController {
             @ApiResponse(responseCode = "200", description = "Карты успешно выведены"),
             @ApiResponse(responseCode = "400", description = "Некорректные входные данные"),
     })
-    @GetMapping
+    @GetMapping("/my_cards")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> getUserCards(@AuthenticationPrincipal String email,
+    public ResponseEntity<?> getUserCards(@AuthenticationPrincipal(expression = "username") String email,
                                           @RequestParam Status status,
                                           @RequestParam int page,
                                           @RequestParam int size) {
@@ -81,8 +84,10 @@ public class CardController {
     @GetMapping("/balance/{cardId}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getBalance(@PathVariable UUID cardId,
-                                        @AuthenticationPrincipal String email) {
-        return ResponseEntity.ok(cardService.getCardBalance(cardId,email));
+                                        @AuthenticationPrincipal(expression = "username") String email) {
+        BigDecimal response = cardService.getCardBalance(cardId,email);
+        log.info("response balance: {}", response.toString());
+        return ResponseEntity.ok(response);
     }
 
     /** Метод {@code transferBetweenCards()} предназначен для перевода денежных средств с карты на карту пользователя

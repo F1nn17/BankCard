@@ -41,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Import({JWTUtils.class})
-@WithMockUser(username = "user")
+@WithMockUser(username = "user@example.com", roles = {"USER"})
 class CardControllerTest {
 
     @Autowired
@@ -88,7 +88,7 @@ class CardControllerTest {
         Mockito.when(cardService.getUserCards(Mockito.anyString(), Mockito.any(), Mockito.anyInt(), Mockito.anyInt()))
                 .thenReturn(new PageImpl<>(userCardDtos));
 
-        mockMvc.perform(get("/api/user/cards")
+        mockMvc.perform(get("/api/card/my_cards")
                         .param("status", "ACTIVE")
                         .param("page", "0")
                         .param("size", "10"))
@@ -99,24 +99,27 @@ class CardControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "user@example.com", roles = {"USER"})
     public void getBalance_shouldReturnBalance() throws Exception {
         UUID cardId = UUID.randomUUID();
-        double balance = 1000.0;
+        BigDecimal balance = BigDecimal.valueOf(1000.0);
 
-        Mockito.when(cardService.getCardBalance(Mockito.any(), Mockito.anyString()))
-                .thenReturn(BigDecimal.valueOf(balance));
+        // Мокаем возвращаемое значение
+        Mockito.when(cardService.getCardBalance(cardId, user.getEmail()))
+                .thenReturn(balance);
 
-        mockMvc.perform(get("/api/user/balance/{cardId}", cardId)
-                        .param("email", user.getEmail()))
+        // Выполняем запрос с поддельным пользователем
+        mockMvc.perform(get("/api/card/balance/{cardId}", cardId))
                 .andExpect(status().isOk())
                 .andExpect(content().string("1000.0"));
     }
+
 
     @Test
     public void transferBetweenCards_shouldReturnSuccess() throws Exception {
         Mockito.doNothing().when(cardService).transfer(Mockito.any(), Mockito.anyString());
 
-        mockMvc.perform(post("/api/user/transfer")
+        mockMvc.perform(post("/api/card/transfer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(transferRequest)))
                 .andExpect(status().isOk())
@@ -129,7 +132,7 @@ class CardControllerTest {
 
         Mockito.doNothing().when(cardService).blockCardByUser(Mockito.any(), Mockito.anyString());
 
-        mockMvc.perform(post("/api/user/block/{cardId}", cardId))
+        mockMvc.perform(post("/api/card/block/{cardId}", cardId))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Карта заблокирована"));
     }
@@ -142,7 +145,7 @@ class CardControllerTest {
         Mockito.when(cardService.createCard(Mockito.any()))
                 .thenReturn(createdCard);
 
-        mockMvc.perform(post("/api/admin/cards")
+        mockMvc.perform(post("/api/card")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(cardCreateRequest)))
                 .andExpect(status().isOk())
@@ -157,7 +160,7 @@ class CardControllerTest {
 
         Mockito.doNothing().when(cardService).blockCardByAdmin(Mockito.any());
 
-        mockMvc.perform(post("/api/admin/block-admin/{cardId}", cardId))
+        mockMvc.perform(post("/api/card/block-admin/{cardId}", cardId))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Карта заблокирована админом"));
     }
@@ -169,7 +172,7 @@ class CardControllerTest {
 
         Mockito.doNothing().when(cardService).activateCard(Mockito.any());
 
-        mockMvc.perform(post("/api/admin/activate/{cardId}", cardId))
+        mockMvc.perform(post("/api/card/activate/{cardId}", cardId))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Карта активирована"));
     }
@@ -181,7 +184,7 @@ class CardControllerTest {
 
         Mockito.doNothing().when(cardService).deleteCard(Mockito.any());
 
-        mockMvc.perform(delete("/api/admin/{cardId}", cardId))
+        mockMvc.perform(delete("/api/card/{cardId}", cardId))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Карта удалена"));
     }
@@ -202,7 +205,7 @@ class CardControllerTest {
         Mockito.when(cardService.getAllCards(Mockito.anyInt(), Mockito.anyInt()))
                 .thenReturn(new PageImpl<>(adminCardDtos));
 
-        mockMvc.perform(get("/api/admin/cards/all")
+        mockMvc.perform(get("/api/card/all")
                         .param("page", "0")
                         .param("size", "10"))
                 .andExpect(status().isOk())

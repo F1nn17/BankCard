@@ -12,6 +12,7 @@ import com.shiraku.bankcard.repository.UserRepository;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +26,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Random;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @Tag(name = "Управление картами", description = "Класс сервиса для управления картами пользователя")
 public class CardService {
@@ -64,7 +66,7 @@ public class CardService {
         if (!card.getOwnerId().equals(user.getId())) {
             throw new AccessDeniedException("You are not the owner of this card");
         }
-
+        log.info("card balance: {}", card.getBalance());
         return card.getBalance();
     }
 
